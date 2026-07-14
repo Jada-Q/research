@@ -1,0 +1,230 @@
+```tsx
+// ContactForm.tsx
+import { useState, FormEvent, ChangeEvent } from "react";
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+type FormErrors = Partial<Record<keyof ContactFormData, string>>;
+
+type SubmitStatus =
+  | { type: "idle" }
+  | { type: "submitting" }
+  | { type: "success" }
+  | { type: "error"; message: string };
+
+const INITIAL_DATA: ContactFormData = { name: "", email: "", message: "" };
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validate(data: ContactFormData): FormErrors {
+  const errors: FormErrors = {};
+
+  if (!data.name.trim()) {
+    errors.name = "请输入姓名";
+  }
+
+  if (!data.email.trim()) {
+    errors.email = "请输入邮箱";
+  } else if (!EMAIL_REGEX.test(data.email.trim())) {
+    errors.email = "邮箱格式不正确";
+  }
+
+  if (!data.message.trim()) {
+    errors.message = "请输入留言内容";
+  } else if (data.message.trim().length < 10) {
+    errors.message = "留言内容至少 10 个字符";
+  }
+
+  return errors;
+}
+
+export default function ContactForm() {
+  const [data, setData] = useState<ContactFormData>(INITIAL_DATA);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<SubmitStatus>({ type: "idle" });
+
+  const isSubmitting = status.type === "submitting";
+
+  function handleChange(
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+    // 用户开始修改时清除该字段的错误
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const validationErrors = validate(data);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setStatus({ type: "submitting" });
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name.trim(),
+          email: data.email.trim(),
+          message: data.message.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        // 尝试读取服务端返回的错误信息
+        let message = `提交失败（${res.status}）`;
+        try {
+          const body = await res.json();
+          if (body?.message) message = body.message;
+        } catch {
+          /* 忽略解析错误 */
+        }
+        throw new Error(message);
+      }
+
+      setData(INITIAL_DATA);
+      setErrors({});
+      setStatus({ type: "success" });
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: err instanceof Error ? err.message : "提交失败，请稍后重试",
+      });
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} noValidate style={styles.form}>
+      <div style={styles.field}>
+        <label htmlFor="name" style={styles.label}>
+          姓名
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={data.name}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? "name-error" : undefined}
+          style={styles.input}
+        />
+        {errors.name && (
+          <span id="name-error" style={styles.error}>
+            {errors.name}
+          </span>
+        )}
+      </div>
+
+      <div style={styles.field}>
+        <label htmlFor="email" style={styles.label}>
+          邮箱
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={data.email}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? "email-error" : undefined}
+          style={styles.input}
+        />
+        {errors.email && (
+          <span id="email-error" style={styles.error}>
+            {errors.email}
+          </span>
+        )}
+      </div>
+
+      <div style={styles.field}>
+        <label htmlFor="message" style={styles.label}>
+          留言
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          rows={5}
+          value={data.message}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          style={{ ...styles.input, resize: "vertical" }}
+        />
+        {errors.message && (
+          <span id="message-error" style={styles.error}>
+            {errors.message}
+          </span>
+        )}
+      </div>
+
+      <button type="submit" disabled={isSubmitting} style={styles.button}>
+        {isSubmitting ? "提交中…" : "提交"}
+      </button>
+
+      {status.type === "success" && (
+        <p role="status" style={styles.success}>
+          提交成功，感谢您的留言！
+        </p>
+      )}
+      {status.type === "error" && (
+        <p role="alert" style={styles.error}>
+          {status.message}
+        </p>
+      )}
+    </form>
+  );
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+    maxWidth: 480,
+    margin: "0 auto",
+  },
+  field: { display: "flex", flexDirection: "column", gap: 4 },
+  label: { fontWeight: 600, fontSize: 14 },
+  input: {
+    padding: "8px 10px",
+    fontSize: 14,
+    border: "1px solid #ccc",
+    borderRadius: 6,
+  },
+  button: {
+    padding: "10px 16px",
+    fontSize: 15,
+    fontWeight: 600,
+    color: "#fff",
+    background: "#2563eb",
+    border: "none",
+    borderRadius: 6,
+    cursor: "pointer",
+  },
+  error: { color: "#dc2626", fontSize: 13 },
+  success: { color: "#16a34a", fontSize: 14 },
+};
+```
+
+要点说明：
+
+- **状态管理**：`data`（表单字段）、`errors`（字段级校验错误）、`status`（提交状态用可辨识联合类型，覆盖 idle/submitting/success/error）。
+- **校验**：`validate` 做客户端校验（必填、邮箱格式、留言最小长度），提交前拦截，用户输入时清除对应错误。
+- **提交**：`fetch` 发 `POST /api/contact`，成功后重置表单，失败时尽量读取服务端 `message`。
+- **可访问性**：`label` 关联、`aria-invalid`、`aria-describedby`、`role="status"/"alert"`，`noValidate` 交由 JS 校验。
+
+如果你的项目里用了 UI 库（如 react-hook-form + zod）或需要去掉内联样式换成 CSS Module / Tailwind，告诉我即可调整。

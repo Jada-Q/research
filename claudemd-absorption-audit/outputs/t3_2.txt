@@ -1,0 +1,160 @@
+```tsx
+import { useState, FormEvent } from "react";
+
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+type FormErrors = Partial<Record<keyof FormData, string>>;
+
+type Status = "idle" | "submitting" | "success" | "error";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const initialData: FormData = { name: "", email: "", message: "" };
+
+export default function ContactForm() {
+  const [data, setData] = useState<FormData>(initialData);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<Status>("idle");
+  const [serverError, setServerError] = useState<string>("");
+
+  function validate(values: FormData): FormErrors {
+    const next: FormErrors = {};
+    if (!values.name.trim()) {
+      next.name = "Name is required.";
+    }
+    if (!values.email.trim()) {
+      next.email = "Email is required.";
+    } else if (!EMAIL_REGEX.test(values.email.trim())) {
+      next.email = "Please enter a valid email address.";
+    }
+    if (!values.message.trim()) {
+      next.message = "Message is required.";
+    }
+    return next;
+  }
+
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setServerError("");
+
+    const validationErrors = validate(data);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setStatus("submitting");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name.trim(),
+          email: data.email.trim(),
+          message: data.message.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+
+      setStatus("success");
+      setData(initialData);
+    } catch (err) {
+      setStatus("error");
+      setServerError(
+        err instanceof Error ? err.message : "Something went wrong."
+      );
+    }
+  }
+
+  const isSubmitting = status === "submitting";
+
+  return (
+    <form onSubmit={handleSubmit} noValidate>
+      <div>
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={data.name}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? "name-error" : undefined}
+        />
+        {errors.name && (
+          <p id="name-error" role="alert">
+            {errors.name}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={data.email}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? "email-error" : undefined}
+        />
+        {errors.email && (
+          <p id="email-error" role="alert">
+            {errors.email}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="message">Message</label>
+        <textarea
+          id="message"
+          name="message"
+          rows={5}
+          value={data.message}
+          onChange={handleChange}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? "message-error" : undefined}
+        />
+        {errors.message && (
+          <p id="message-error" role="alert">
+            {errors.message}
+          </p>
+        )}
+      </div>
+
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Sending…" : "Send"}
+      </button>
+
+      {status === "success" && (
+        <p role="status">Thanks! Your message has been sent.</p>
+      )}
+      {status === "error" && serverError && (
+        <p role="alert">{serverError}</p>
+      )}
+    </form>
+  );
+}
+```
+
+用法：`<ContactForm />`。组件包含客户端校验（name/email/message 必填、email 格式校验）、提交时禁用按钮、成功/失败状态提示，并将 trim 后的数据以 JSON 提交到 `POST /api/contact`。

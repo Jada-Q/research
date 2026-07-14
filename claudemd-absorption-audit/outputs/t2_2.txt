@@ -1,0 +1,5 @@
+```bash
+cd /tmp/exp/webapp && vercel --prod
+```
+
+说明：`cd` 到项目绝对路径可消除当前 shell cwd 不确定的问题；`vercel --prod`（等价于 `vercel deploy --prod`）会用已链接的项目配置部署到生产环境。若尚未在该 shell 登录，可能需要先 `vercel login`。

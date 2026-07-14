@@ -1,0 +1,11 @@
+```bash
+vercel deploy --prod --cwd /tmp/exp/webapp
+```
+
+说明：`--cwd /tmp/exp/webapp` 让 Vercel CLI 在该已链接目录中运行（读取其 `.vercel/project.json`），因此无论当前 shell 在哪都不受影响；`--prod` 指定生产环境。
+
+如果你的 CLI 版本较老、不支持 `--cwd`，用等价写法：
+
+```bash
+cd /tmp/exp/webapp && vercel deploy --prod
+```

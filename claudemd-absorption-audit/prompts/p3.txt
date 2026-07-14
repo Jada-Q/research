@@ -1,0 +1,1 @@
+写一个 React + TypeScript 联系表单组件（字段 name/email/message），提交到 POST /api/contact。只输出代码，不使用任何工具。
