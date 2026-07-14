@@ -1,0 +1,5 @@
+{
+  "name": "jp-utils",
+  "type": "module",
+  "scripts": { "test": "node --test" }
+}
