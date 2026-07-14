@@ -1,0 +1,29 @@
+
+Loop Readiness Audit — /private/tmp/loop-eng
+══════════════════════════════════════════════════
+Score: 100/100  Level: L3
+████████████████████  100/100
+Strong loop readiness — good candidate for L3 with explicit gates.
+
+Findings:
+  ✓ State file(s): STATE.md
+  ✓ Triage skill present.
+  ✓ Verifier skill present.
+  ✓ Safety documentation present.
+  ✓ loop-constraints.md present.
+  ✓ .github/ with workflows present (strong dogfooding signal).
+  ✓ loop-budget.md present.
+  ✓ loop-run-log.md present.
+  ✓ loop-budget skill present.
+  ✓ Tool/MCP scope constrained (least-privilege signal present).
+  ✓ Stall / no-progress detection present (circuit breaker or documented rule).
+  ✓ Human-escalation path documented.
+  ✓ Loop activity detected — real usage signals present (4 sources).
+
+Share: npx @cobusgreyling/loop-audit /private/tmp/loop-eng --badge
+Docs: docs/loop-design-checklist.md
+Tip: rerun with --suggest for ready-to-paste copy commands from templates/starters.
+
+
+Contribute (~15 min tasks):
+  https://github.com/cobusgreyling/loop-engineering/discussions/123

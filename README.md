@@ -22,6 +22,7 @@
 | [tdd-redgreen-incantation](tdd-redgreen-incantation/) | 2026-07-14 | "red/green TDD" 咒语还有增益吗（Opus 4.8） | 已被吸收：对照组也默认写测试；咒语剩余价值 = 强制 RED 阶段（测试的阴性对照） |
 | [claudemd-absorption-audit](claudemd-absorption-audit/) | 2026-07-14 | CLAUDE.md 行为条款哪些已被模型默认行为吸收（Opus 4.8） | 4 测 3 吸收；唯一在做真功的是"数字事实标注"（裸模型自信编成套税率表） |
 | [example-vs-doc](example-vs-doc/) | 2026-07-14 | 单范例文件 vs 详尽风格文档，哪个更能让 agent 跟随项目约定（Fable 5） | 成文约定打平（好文档=范例=100%）；范例额外传递**不成文**微风格；项目约定不会被吸收，必须在上下文里 |
+| [loop-ready-score-audit](loop-ready-score-audit/) | 2026-07-14 | loop-engineering（7676★）的 Loop Ready 分数量的是什么 | 假仓库 100/100 L3，真生产循环 26/100 L0——量的是文件命名服从度不是循环真实性（预注册预测成立） |
 
 ## 方法论共性（三条实验同一 harness 家族）
 

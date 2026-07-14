@@ -1,0 +1,58 @@
+
+Loop Readiness Audit — /private/tmp/empty-audit
+══════════════════════════════════════════════════
+Score: 10/100  Level: L0
+██░░░░░░░░░░░░░░░░░░  10/100
+Not loop-ready — start with a starter from this repo (minimal-loop or pr-babysitter).
+
+Findings:
+  ✗ No state file (STATE.md or pattern-specific state).
+  ! No triage skill detected.
+  ! No loop-verifier skill — maker/checker split incomplete.
+  ! No LOOP.md documenting cadence, limits, and gates.
+  ! No AGENTS.md / CLAUDE.md for project conventions.
+  ! LOOP.md does not mention safety gates or auto-merge policy.
+  ! No safety.md or docs/safety.md found.
+  ! No loop-constraints.md — structured constraints file missing.
+  ! No .github/ directory (templates, workflows for dogfooding).
+  ! No MCP / connector config or mentions detected.
+  ! Little evidence of worktree usage in docs or state.
+  ! No patterns/registry.yaml (machine-readable index for future tools).
+  ! No loop-budget.md — token caps and kill switch undocumented.
+  ! No loop-run-log.md — run history not persisted.
+  ! LOOP.md does not mention budget, token caps, or kill switch.
+  ! No loop-budget skill — budget checks are not automated at runtime.
+  ! No least-privilege tool scope — skills/agents may hold broader tool or MCP access than their role needs.
+  ! No stall / no-progress detection — a stuck loop can repeat the same failing action instead of escalating.
+  ! No explicit human-escalation path — the loop has no defined hand-off when stuck or out of scope.
+  ! No evidence of actual loop runs detected (no "Last run" entries in state, loop-related git activity, or scheduled workflows yet).
+
+Recommendations:
+  → Copy starters/minimal-loop/STATE.md.example (or -claude / -codex variant) to STATE.md
+  → Install loop-triage from starters/minimal-loop, minimal-loop-claude, or minimal-loop-codex
+  → Add verifier: .grok/skills/loop-verifier, .claude/agents/loop-verifier.md, .codex/agents/verifier.toml, or a verifier agent in opencode.json
+  → Copy starters/minimal-loop/LOOP.md and customize
+  → Add AGENTS.md with build/test commands and review norms
+  → Document human gates per docs/safety.md in LOOP.md
+  → Copy or create docs/safety.md (denylists, auto-merge policy, MCP scopes)
+  → Create loop-constraints.md with denylist paths, push/merge rules, and human gates (see templates/loop-constraints.md)
+  → Add .github/ISSUE_TEMPLATE, PULL_REQUEST_TEMPLATE, and workflows (see this repo for examples)
+  → Document MCP usage (or note "MCP not required for this pattern") in LOOP.md or skills
+  → Add worktree isolation notes to LOOP.md or pattern docs (see primitives and starters)
+  → Add patterns/registry.yaml following the existing format
+  → Scaffold with loop-init or copy templates/loop-budget.md.template
+  → Copy templates/loop-run-log.md.template to loop-run-log.md
+  → Add a Budget section to LOOP.md (see starters/*/LOOP.md)
+  → Add loop-budget skill via loop-init or templates/SKILL.md.loop-budget
+  → Declare allowed-tools in SKILL.md frontmatter, or document tool/MCP scopes in docs/safety.md (least privilege per role)
+  → Add loop-context (circuit breaker) or a max-attempts / no-progress rule in LOOP.md that escalates instead of looping
+  → Document an escalation path in LOOP.md (when to stop and hand to a human; e.g. loop-context exit code 2)
+  → Run one loop (report-only), update + commit STATE.md (or pattern state). This turns structure into proven usage.
+
+Share: npx @cobusgreyling/loop-audit /private/tmp/empty-audit --badge
+Docs: docs/loop-design-checklist.md
+Tip: rerun with --suggest for ready-to-paste copy commands from templates/starters.
+
+
+Contribute (~15 min tasks):
+  https://github.com/cobusgreyling/loop-engineering/discussions/123
